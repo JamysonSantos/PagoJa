@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PagoJá - Controle de Assinaturas</title>
 
-  <!-- Tailwind CDN -->
+  <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -19,9 +19,6 @@
       }
     };
   </script>
-
-  <!-- CSS externo -->
-  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-start justify-center p-6">
 
@@ -30,21 +27,28 @@
     <h1 class="text-3xl font-bold text-center text-dark">PagoJá</h1>
     <p class="text-center text-gray-500">Seu controle de assinaturas em um só lugar.</p>
 
-    <!-- Formulário -->
+    <!-- FORMULÁRIO -->
     <form id="subscription-form" class="space-y-4">
-      <input id="name" type="text" placeholder="Nome da assinatura" required class="input-field" />
-      <input id="value" type="number" placeholder="Valor (R$)" step="0.01" required class="input-field" />
-      <input id="nextDate" type="date" required class="input-field" />
+      <input id="name" type="text" placeholder="Nome da assinatura" required
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
 
-      <div class="grid grid-cols-3 gap-4">
-        <select id="frequency" class="input-field">
+      <input id="value" type="number" placeholder="Valor (R$)" step="0.01" required
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+
+      <input id="nextDate" type="date" required
+        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <select id="frequency"
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="Mensal">Mensal</option>
           <option value="Anual">Anual</option>
           <option value="Trimestral">Trimestral</option>
           <option value="Outro">Outro</option>
         </select>
 
-        <select id="paymentMethod" class="input-field">
+        <select id="paymentMethod"
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="Cartão">Cartão</option>
           <option value="Boleto">Boleto</option>
           <option value="Pix">Pix</option>
@@ -52,7 +56,8 @@
           <option value="Outro">Outro</option>
         </select>
 
-        <select id="category" class="input-field">
+        <select id="category"
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
           <option value="Streaming">Streaming</option>
           <option value="Internet">Internet</option>
           <option value="Celular">Celular</option>
@@ -62,16 +67,19 @@
         </select>
       </div>
 
-      <button type="submit" class="btn-primary">Cadastrar Assinatura</button>
+      <button type="submit"
+        class="w-full bg-primary hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition-all">
+        Cadastrar Assinatura
+      </button>
     </form>
 
-    <!-- Total -->
+    <!-- TOTAL GERAL -->
     <div class="text-center">
       <p class="text-lg font-semibold text-gray-700">Total mensal estimado:</p>
       <p id="total-cost" class="text-3xl font-bold text-primary mt-1">R$ 0,00</p>
     </div>
 
-    <!-- Lista -->
+    <!-- LISTA DE ASSINATURAS -->
     <div>
       <h2 class="text-xl font-semibold text-dark mb-3">Minhas Assinaturas</h2>
       <div id="subscription-list" class="space-y-3"></div>
@@ -79,6 +87,6 @@
 
   </div>
 
-  <script src="js/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
