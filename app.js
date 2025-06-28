@@ -258,6 +258,7 @@ function setModalFields(email, password) {
 }
 
 // Ajusta modal para modo visualização (inputs desabilitados)
+// Ajusta modal para modo visualização (inputs desabilitados)
 function setModalViewMode() {
   modalIsEditing = false;
   modalEmail.disabled = true;
@@ -266,13 +267,31 @@ function setModalViewMode() {
   modalTogglePassword.textContent = '👁';
 
   // Remover botão salvar e cancelar, adicionar editar
-  if (accessForm.contains(modalEditBtn) === false) {
+  if (!accessForm.contains(modalEditBtn)) {
     accessForm.appendChild(modalEditBtn);
   }
   modalCancelBtn.style.display = 'none';
   accessForm.querySelector('button[type="submit"]').style.display = 'none';
 
   modalEditBtn.style.display = 'inline-block';
+}
+
+// Ajusta modal para modo edição (inputs habilitados)
+function setModalEditMode() {
+  modalIsEditing = true;
+
+  modalEmail.disabled = false;
+  modalPassword.disabled = false;
+  
+  // Se estava com atributo readonly, remove (caso tenha usado)
+  modalEmail.removeAttribute('readonly');
+  modalPassword.removeAttribute('readonly');
+
+  modalTogglePassword.style.visibility = 'visible';
+
+  modalEditBtn.style.display = 'none';
+  modalCancelBtn.style.display = 'inline-block';
+  accessForm.querySelector('button[type="submit"]').style.display = 'inline-block';
 }
 
 // Ajusta modal para modo edição (inputs habilitados)
