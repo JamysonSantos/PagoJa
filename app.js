@@ -131,5 +131,15 @@ form.addEventListener('submit', function (e) {
   renderList();
 });
 
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.className = "fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded shadow-lg animate-fade";
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
 // Inicializar
 renderList();
