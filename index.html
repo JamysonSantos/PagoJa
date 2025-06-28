@@ -5,20 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PagoJá - Controle de Assinaturas</title>
 
-  <!-- Tailwind via CDN -->
+  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: '#10B981', // verde esmeralda
-            dark: '#064E3B'     // verde pinho escuro
+            primary: '#10B981', // Verde esmeralda
+            dark: '#064E3B'     // Verde escuro
           }
         }
       }
     };
   </script>
+
+  <!-- Estilo do Toast -->
+  <style>
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade {
+      animation: fade 0.3s ease-out;
+    }
+  </style>
 </head>
 <body class="bg-dark min-h-screen flex items-start justify-center p-6 text-white">
 
@@ -108,7 +119,7 @@
     <div>
       <h2 class="text-xl font-semibold text-dark mb-3">Minhas Assinaturas</h2>
       <div id="subscription-list" class="space-y-3">
-        <!-- Cards dinâmicos serão inseridos aqui -->
+        <!-- Cards dinâmicos aqui -->
       </div>
     </div>
 
@@ -117,3 +128,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+
