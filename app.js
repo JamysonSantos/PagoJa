@@ -2,6 +2,30 @@ const form = document.getElementById('subscription-form');
 const list = document.getElementById('subscription-list');
 const totalCost = document.getElementById('total-cost');
 
+// Toast de notificação
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.className = "fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded shadow-lg animate-fade z-50";
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
+// Adiciona animação global (pode ir no <style> do HTML, ou dinamicamente via JS)
+const style = document.createElement('style');
+style.innerHTML = `
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade {
+  animation: fade 0.3s ease-out;
+}
+`;
+document.head.appendChild(style);
+
 function saveToLocalStorage(data) {
   localStorage.setItem('subscriptions', JSON.stringify(data));
 }
@@ -52,6 +76,7 @@ function renderList() {
   subscriptions.forEach((item, index) => {
     const div = document.createElement('div');
     div.className = "bg-gray-50 border-l-4 border-primary p-4 rounded shadow-sm";
+
     div.innerHTML = `
       <div class="flex justify-between items-start flex-wrap gap-2">
         <div>
@@ -59,14 +84,15 @@ function renderList() {
           <p class="text-sm text-gray-600">Valor: ${formatCurrency(item.value)} | Próx: ${formatDate(item.nextDate)}</p>
           <p class="text-xs text-gray-500">${item.frequency} · ${item.paymentMethod} · ${item.category}</p>
         </div>
-        <div class="flex flex-col gap-1 text-sm text-right">
-          <button class="text-primary hover:underline" onclick="markAsPaid(${index})">Paguei</button>
-          <button class="text-yellow-600 hover:underline" onclick="markAsPaidAndCancel(${index})">Paguei, mas vou cancelar</button>
-          <button class="text-red-500 hover:underline" onclick="cancelSubscription(${index})">Cancelei</button>
-          <button class="text-blue-600 hover:underline" onclick="changeDate(${index})">Alterar data</button>
+        <div class="flex flex-wrap gap-2 mt-2">
+          <button class="px-3 py-1 bg-primary text-white rounded text-sm" onclick="markAsPaid(${index})">Paguei</button>
+          <button class="px-3 py-1 bg-yellow-500 text-white rounded text-sm" onclick="markAsPaidAndCancel(${index})">Paguei, mas vou cancelar</button>
+          <button class="px-3 py-1 bg-red-500 text-white rounded text-sm" onclick="cancelSubscription(${index})">Cancelei</button>
+          <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm" onclick="changeDate(${index})">Alterar data</button>
         </div>
       </div>
     `;
+
     list.appendChild(div);
   });
   renderTotal(subscriptions);
@@ -78,6 +104,7 @@ function markAsPaid(index) {
   sub.nextDate = addPeriodToDate(sub.nextDate, sub.frequency);
   saveToLocalStorage(subscriptions);
   renderList();
+  showToast("Assinatura renovada com sucesso!");
 }
 
 function markAsPaidAndCancel(index) {
