@@ -181,11 +181,15 @@
     </div>
   </div>
 
-  <div class="w-full fixed top-0 left-0 flex justify-center z-50">
-    <button id="install-button" class="hidden mt-4 bg-primary text-white px-6 py-3 rounded shadow-lg">
-      Instalar App
-    </button>
+  <!-- BOTÃO INSTALAR APP -->
+  <div class="w-full fixed top-0 left-0 flex justify-center z-50 pointer-events-none">
+    <div class="mt-4 bg-black bg-opacity-40 rounded-xl p-1 animate-fadein pointer-events-auto">
+      <button id="install-button" class="hidden bg-primary text-white px-6 py-3 rounded shadow-xl">
+        Instalar App
+      </button>
+    </div>
   </div>
+
 
   <!-- MODAL PARA DADOS DE ACESSO -->
   <div id="access-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
