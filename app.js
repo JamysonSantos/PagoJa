@@ -16,18 +16,31 @@ const modalEmail = document.getElementById('modal-email');
 const modalPassword = document.getElementById('modal-password');
 const modalTogglePassword = document.getElementById('modal-toggle-password');
 
-let currentEditingIndex = null;
+const modalEditBtn = document.createElement('button'); // Botão Editar, será criado dinamicamente
+modalEditBtn.type = 'button';
+modalEditBtn.textContent = 'Editar';
+modalEditBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700';
 
-// Mostrar/ocultar campos adicionais para streaming
-categoryField.addEventListener('change', () => {
+// Controle do index atual que está sendo editado no modal
+let currentEditingIndex = null;
+let modalIsEditing = false; // Flag para controlar estado do modal
+
+// Função para atualizar visibilidade dos campos streaming no formulário conforme categoria
+function updateStreamingFieldsVisibility() {
   if (categoryField.value === 'Streaming') {
     streamingFields.classList.remove('hidden');
   } else {
     streamingFields.classList.add('hidden');
   }
-});
+}
 
-// Mostrar/ocultar senha no formulário principal
+// Inicializar visibilidade logo no carregamento da página
+updateStreamingFieldsVisibility();
+
+// Atualizar visibilidade ao mudar categoria
+categoryField.addEventListener('change', updateStreamingFieldsVisibility);
+
+// Toggle senha formulário principal
 if (togglePasswordBtn) {
   togglePasswordBtn.addEventListener('click', () => {
     const type = passwordInput.type === 'password' ? 'text' : 'password';
@@ -35,7 +48,7 @@ if (togglePasswordBtn) {
   });
 }
 
-// Mostrar/ocultar campo de compartilhamento
+// Mostrar/ocultar campo compartilhado
 usageRadios.forEach(radio => {
   radio.addEventListener('change', () => {
     if (radio.value === 'compartilhado' && radio.checked) {
@@ -183,13 +196,17 @@ function removeSubscription(index) {
 // Cadastro novo item via formulário
 form.addEventListener('submit', function (e) {
   e.preventDefault();
+  if (!categoryField.value) {
+    alert("Por favor, escolha uma categoria válida.");
+    return;
+  }
   const subscription = {
     name: document.getElementById('name').value.trim(),
     value: parseFloat(document.getElementById('value').value),
     nextDate: document.getElementById('nextDate').value,
     frequency: document.getElementById('frequency').value,
     paymentMethod: document.getElementById('paymentMethod').value,
-    category: document.getElementById('category').value,
+    category: categoryField.value,
     email: document.getElementById('email')?.value.trim() || '',
     password: document.getElementById('password')?.value || '',
     usage: document.querySelector('input[name="usage"]:checked')?.value || 'pessoal',
@@ -206,6 +223,10 @@ form.addEventListener('submit', function (e) {
 
 // Modal Dados de Acesso
 
+// Variáveis para guardar dados originais no modo visualização
+let modalOriginalEmail = '';
+let modalOriginalPassword = '';
+
 // Delegação para botão "Ver dados de acesso"
 list.addEventListener('click', (e) => {
   if (e.target.classList.contains('btn-access')) {
@@ -219,19 +240,54 @@ function openAccessModal(index) {
   const item = subscriptions[index];
   if (!item) return;
 
-  modalEmail.value = item.email || '';
-  modalPassword.value = item.password || '';
-  modalPassword.type = 'password'; // mascara sempre ao abrir
-  modalTogglePassword.textContent = '👁';
+  modalOriginalEmail = item.email || '';
+  modalOriginalPassword = item.password || '';
+
+  setModalFields(modalOriginalEmail, modalOriginalPassword);
+  setModalViewMode();
 
   accessModal.classList.remove('hidden');
 }
 
-function closeAccessModal() {
-  accessModal.classList.add('hidden');
-  currentEditingIndex = null;
+// Configura campos do modal com valores dados e mascara
+function setModalFields(email, password) {
+  modalEmail.value = email;
+  modalPassword.value = password;
+  modalPassword.type = 'password';
+  modalTogglePassword.textContent = '👁';
 }
 
+// Ajusta modal para modo visualização (inputs desabilitados)
+function setModalViewMode() {
+  modalIsEditing = false;
+  modalEmail.disabled = true;
+  modalPassword.disabled = true;
+  modalTogglePassword.style.visibility = 'visible';
+  modalTogglePassword.textContent = '👁';
+
+  // Remover botão salvar e cancelar, adicionar editar
+  if (accessForm.contains(modalEditBtn) === false) {
+    accessForm.appendChild(modalEditBtn);
+  }
+  modalCancelBtn.style.display = 'none';
+  accessForm.querySelector('button[type="submit"]').style.display = 'none';
+
+  modalEditBtn.style.display = 'inline-block';
+}
+
+// Ajusta modal para modo edição (inputs habilitados)
+function setModalEditMode() {
+  modalIsEditing = true;
+  modalEmail.disabled = false;
+  modalPassword.disabled = false;
+  modalTogglePassword.style.visibility = 'visible';
+
+  modalEditBtn.style.display = 'none';
+  modalCancelBtn.style.display = 'inline-block';
+  accessForm.querySelector('button[type="submit"]').style.display = 'inline-block';
+}
+
+// Alternar visibilidade da senha no modal
 modalTogglePassword.addEventListener('click', () => {
   if (modalPassword.type === 'password') {
     modalPassword.type = 'text';
@@ -242,9 +298,23 @@ modalTogglePassword.addEventListener('click', () => {
   }
 });
 
-closeModalBtn.addEventListener('click', closeAccessModal);
-modalCancelBtn.addEventListener('click', closeAccessModal);
+// Fechar modal
+closeModalBtn.addEventListener('click', () => {
+  closeAccessModal();
+});
 
+modalCancelBtn.addEventListener('click', () => {
+  // Reverter para dados originais e modo visualização
+  setModalFields(modalOriginalEmail, modalOriginalPassword);
+  setModalViewMode();
+});
+
+// Botão editar do modal
+modalEditBtn.addEventListener('click', () => {
+  setModalEditMode();
+});
+
+// Salvar alterações do modal
 accessForm.addEventListener('submit', (e) => {
   e.preventDefault();
   if (currentEditingIndex === null) return;
@@ -257,10 +327,23 @@ accessForm.addEventListener('submit', (e) => {
 
   saveToLocalStorage(subscriptions);
   renderList();
-  closeAccessModal();
+
+  // Atualiza dados originais para o modo visualização
+  modalOriginalEmail = item.email;
+  modalOriginalPassword = item.password;
+
+  setModalViewMode();
   showToast('Dados de acesso atualizados!');
 });
 
+// Fechar modal (função)
+function closeAccessModal() {
+  accessModal.classList.add('hidden');
+  currentEditingIndex = null;
+  setModalViewMode();
+}
+
 // Inicializar lista ao carregar
 renderList();
+
 
