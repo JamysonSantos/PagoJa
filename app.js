@@ -1,6 +1,40 @@
 const form = document.getElementById('subscription-form');
 const list = document.getElementById('subscription-list');
 const totalCost = document.getElementById('total-cost');
+const categoryField = document.getElementById('category');
+const streamingFields = document.getElementById('streaming-fields');
+const togglePasswordBtn = document.getElementById('toggle-password');
+const passwordInput = document.getElementById('password');
+const usageRadios = document.getElementsByName('usage');
+const sharedUsersContainer = document.getElementById('shared-users-container');
+
+// Mostrar/ocultar campos adicionais para streaming
+categoryField.addEventListener('change', () => {
+  if (categoryField.value === 'Streaming') {
+    streamingFields.classList.remove('hidden');
+  } else {
+    streamingFields.classList.add('hidden');
+  }
+});
+
+// Mostrar/ocultar senha
+if (togglePasswordBtn) {
+  togglePasswordBtn.addEventListener('click', () => {
+    const type = passwordInput.type === 'password' ? 'text' : 'password';
+    passwordInput.type = type;
+  });
+}
+
+// Mostrar/ocultar campo de compartilhamento
+usageRadios.forEach(radio => {
+  radio.addEventListener('change', () => {
+    if (radio.value === 'compartilhado' && radio.checked) {
+      sharedUsersContainer.classList.remove('hidden');
+    } else if (radio.value === 'pessoal' && radio.checked) {
+      sharedUsersContainer.classList.add('hidden');
+    }
+  });
+});
 
 // Toast de notificação
 function showToast(message) {
@@ -12,19 +46,6 @@ function showToast(message) {
     toast.remove();
   }, 3000);
 }
-
-// Adiciona animação global (pode ir no <style> do HTML, ou dinamicamente via JS)
-const style = document.createElement('style');
-style.innerHTML = `
-@keyframes fade {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade {
-  animation: fade 0.3s ease-out;
-}
-`;
-document.head.appendChild(style);
 
 function saveToLocalStorage(data) {
   localStorage.setItem('subscriptions', JSON.stringify(data));
@@ -83,6 +104,12 @@ function renderList() {
           <p class="text-lg font-bold text-dark">${item.name}</p>
           <p class="text-sm text-gray-600">Valor: ${formatCurrency(item.value)} | Próx: ${formatDate(item.nextDate)}</p>
           <p class="text-xs text-gray-500">${item.frequency} · ${item.paymentMethod} · ${item.category}</p>
+          ${item.category === 'Streaming' ? `
+            <p class="text-xs text-gray-500 mt-1">E-mail: ${item.email || '-'}</p>
+            <p class="text-xs text-gray-500">Senha: ${item.password || '-'}</p>
+            <p class="text-xs text-gray-500">Uso: ${item.usage || 'pessoal'}</p>
+            ${item.usage === 'compartilhado' ? `<p class="text-xs text-gray-500">Compartilhado com: ${item.sharedUsers || '-'}</p>` : ''}
+          ` : ''}
         </div>
         <div class="flex flex-wrap gap-2 mt-2">
           <button class="px-3 py-1 bg-primary text-white rounded text-sm" onclick="markAsPaid(${index})">Paguei</button>
@@ -149,14 +176,21 @@ form.addEventListener('submit', function (e) {
     nextDate: document.getElementById('nextDate').value,
     frequency: document.getElementById('frequency').value,
     paymentMethod: document.getElementById('paymentMethod').value,
-    category: document.getElementById('category').value
+    category: document.getElementById('category').value,
+    email: document.getElementById('email')?.value || '',
+    password: document.getElementById('password')?.value || '',
+    usage: document.querySelector('input[name="usage"]:checked')?.value || 'pessoal',
+    sharedUsers: document.getElementById('sharedUsers')?.value || ''
   };
   const subscriptions = loadFromLocalStorage();
   subscriptions.push(subscription);
   saveToLocalStorage(subscriptions);
   form.reset();
+  streamingFields.classList.add('hidden');
+  sharedUsersContainer.classList.add('hidden');
   renderList();
 });
 
 // Inicializar
 renderList();
+
