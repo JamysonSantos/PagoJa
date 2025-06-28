@@ -8,6 +8,16 @@ const passwordInput = document.getElementById('password');
 const usageRadios = document.getElementsByName('usage');
 const sharedUsersContainer = document.getElementById('shared-users-container');
 
+const accessModal = document.getElementById('access-modal');
+const closeModalBtn = document.getElementById('close-modal');
+const modalCancelBtn = document.getElementById('modal-cancel');
+const accessForm = document.getElementById('access-form');
+const modalEmail = document.getElementById('modal-email');
+const modalPassword = document.getElementById('modal-password');
+const modalTogglePassword = document.getElementById('modal-toggle-password');
+
+let currentEditingIndex = null;
+
 // Mostrar/ocultar campos adicionais para streaming
 categoryField.addEventListener('change', () => {
   if (categoryField.value === 'Streaming') {
@@ -17,7 +27,7 @@ categoryField.addEventListener('change', () => {
   }
 });
 
-// Mostrar/ocultar senha
+// Mostrar/ocultar senha no formulário principal
 if (togglePasswordBtn) {
   togglePasswordBtn.addEventListener('click', () => {
     const type = passwordInput.type === 'password' ? 'text' : 'password';
@@ -102,16 +112,16 @@ function renderList() {
       <div class="flex justify-between items-start flex-wrap gap-2">
         <div>
           <p class="text-lg font-bold text-dark">${item.name}</p>
-          <p class="text-sm text-gray-600">Valor: ${formatCurrency(item.value)} | Próx: ${formatDate(item.nextDate)}</p>
-          <p class="text-xs text-gray-500">${item.frequency} · ${item.paymentMethod} · ${item.category}</p>
-          ${item.category === 'Streaming' ? `
-            <p class="text-xs text-gray-500 mt-1">E-mail: ${item.email || '-'}</p>
-            <p class="text-xs text-gray-500">Senha: ${item.password || '-'}</p>
-            <p class="text-xs text-gray-500">Uso: ${item.usage || 'pessoal'}</p>
-            ${item.usage === 'compartilhado' ? `<p class="text-xs text-gray-500">Compartilhado com: ${item.sharedUsers || '-'}</p>` : ''}
+          <p class="text-sm text-gray-600">
+            Valor: ${formatCurrency(item.value)} | Próxima cobrança: ${formatDate(item.nextDate)}
+          </p>
+          <p class="text-xs text-gray-500 my-2">${item.frequency} · ${item.paymentMethod} · ${item.category}</p>
+          ${item.category === 'Streaming' && item.usage === 'compartilhado' ? `
+            <p class="text-xs text-gray-500 mb-2">Compartilhado com: ${item.sharedUsers || '-'}</p>
           ` : ''}
         </div>
-        <div class="flex flex-wrap gap-2 mt-2">
+        <div class="flex flex-col gap-2 mt-2">
+          ${item.category === 'Streaming' ? `<button class="btn-access bg-blue-600 text-white px-3 py-1 rounded text-sm" data-index="${index}">Ver dados de acesso</button>` : ''}
           <button class="px-3 py-1 bg-primary text-white rounded text-sm" onclick="markAsPaid(${index})">Paguei</button>
           <button class="px-3 py-1 bg-yellow-500 text-white rounded text-sm" onclick="markAsPaidAndCancel(${index})">Paguei, mas vou cancelar</button>
           <button class="px-3 py-1 bg-red-500 text-white rounded text-sm" onclick="cancelSubscription(${index})">Cancelei</button>
@@ -124,6 +134,8 @@ function renderList() {
   });
   renderTotal(subscriptions);
 }
+
+// Funções para ações nos cards
 
 function markAsPaid(index) {
   const subscriptions = loadFromLocalStorage();
@@ -168,19 +180,20 @@ function removeSubscription(index) {
   renderList();
 }
 
+// Cadastro novo item via formulário
 form.addEventListener('submit', function (e) {
   e.preventDefault();
   const subscription = {
-    name: document.getElementById('name').value,
+    name: document.getElementById('name').value.trim(),
     value: parseFloat(document.getElementById('value').value),
     nextDate: document.getElementById('nextDate').value,
     frequency: document.getElementById('frequency').value,
     paymentMethod: document.getElementById('paymentMethod').value,
     category: document.getElementById('category').value,
-    email: document.getElementById('email')?.value || '',
+    email: document.getElementById('email')?.value.trim() || '',
     password: document.getElementById('password')?.value || '',
     usage: document.querySelector('input[name="usage"]:checked')?.value || 'pessoal',
-    sharedUsers: document.getElementById('sharedUsers')?.value || ''
+    sharedUsers: document.getElementById('sharedUsers')?.value.trim() || ''
   };
   const subscriptions = loadFromLocalStorage();
   subscriptions.push(subscription);
@@ -191,6 +204,63 @@ form.addEventListener('submit', function (e) {
   renderList();
 });
 
-// Inicializar
+// Modal Dados de Acesso
+
+// Delegação para botão "Ver dados de acesso"
+list.addEventListener('click', (e) => {
+  if (e.target.classList.contains('btn-access')) {
+    currentEditingIndex = parseInt(e.target.dataset.index, 10);
+    openAccessModal(currentEditingIndex);
+  }
+});
+
+function openAccessModal(index) {
+  const subscriptions = loadFromLocalStorage();
+  const item = subscriptions[index];
+  if (!item) return;
+
+  modalEmail.value = item.email || '';
+  modalPassword.value = item.password || '';
+  modalPassword.type = 'password'; // mascara sempre ao abrir
+  modalTogglePassword.textContent = '👁';
+
+  accessModal.classList.remove('hidden');
+}
+
+function closeAccessModal() {
+  accessModal.classList.add('hidden');
+  currentEditingIndex = null;
+}
+
+modalTogglePassword.addEventListener('click', () => {
+  if (modalPassword.type === 'password') {
+    modalPassword.type = 'text';
+    modalTogglePassword.textContent = '🙈';
+  } else {
+    modalPassword.type = 'password';
+    modalTogglePassword.textContent = '👁';
+  }
+});
+
+closeModalBtn.addEventListener('click', closeAccessModal);
+modalCancelBtn.addEventListener('click', closeAccessModal);
+
+accessForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (currentEditingIndex === null) return;
+
+  const subscriptions = loadFromLocalStorage();
+  const item = subscriptions[currentEditingIndex];
+
+  item.email = modalEmail.value.trim();
+  item.password = modalPassword.value;
+
+  saveToLocalStorage(subscriptions);
+  renderList();
+  closeAccessModal();
+  showToast('Dados de acesso atualizados!');
+});
+
+// Inicializar lista ao carregar
 renderList();
 
