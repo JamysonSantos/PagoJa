@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,8 +13,8 @@
       theme: {
         extend: {
           colors: {
-            primary: '#10B981', // Verde esmeralda
-            dark: '#064E3B'     // Verde escuro
+            primary: '#10B981',
+            dark: '#064E3B'
           }
         }
       }
@@ -36,39 +37,37 @@
     }
   </style>
 </head>
+
 <body class="bg-dark min-h-screen flex items-start justify-center p-6 text-white">
-
   <div class="w-full max-w-2xl bg-white shadow-xl rounded-xl p-6 space-y-6 text-gray-800">
-
     <h1 class="text-3xl font-bold text-center text-dark">Seificontas</h1>
     <p class="text-center text-gray-500">organize, pague, relaxe</p>
 
     <!-- FORMULÁRIO -->
     <form id="subscription-form" class="space-y-4">
-
       <div class="space-y-1">
         <label for="name" class="block text-sm font-medium text-gray-700">Nome da assinatura</label>
         <input id="name" type="text" placeholder="Ex: Netflix" required
-          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800" />
       </div>
 
       <div class="space-y-1">
         <label for="value" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
         <input id="value" type="number" placeholder="Ex: 39.90" step="0.01" required
-          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800" />
       </div>
 
       <div class="space-y-1">
         <label for="nextDate" class="block text-sm font-medium text-gray-700">Próxima data de pagamento</label>
         <input id="nextDate" type="date" required
-          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800" />
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="space-y-1">
           <label for="frequency" class="block text-sm font-medium text-gray-700">Frequência</label>
           <select id="frequency"
-            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800">
             <option value="Mensal">Mensal</option>
             <option value="Anual">Anual</option>
             <option value="Trimestral">Trimestral</option>
@@ -79,7 +78,7 @@
         <div class="space-y-1">
           <label for="paymentMethod" class="block text-sm font-medium text-gray-700">Forma de pagamento</label>
           <select id="paymentMethod"
-            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800">
             <option value="Cartão">Cartão</option>
             <option value="Boleto">Boleto</option>
             <option value="Pix">Pix</option>
@@ -90,7 +89,8 @@
 
         <div class="space-y-1">
           <label for="category" class="block text-sm font-medium text-gray-700">Categoria</label>
-          <select id="category" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+          <select id="category"
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800">
             <option value="">-- Escolher categoria --</option>
             <option value="Streaming">Streaming</option>
             <option value="Internet">Internet</option>
@@ -99,7 +99,6 @@
             <option value="Saúde">Saúde</option>
             <option value="Outro">Outro</option>
           </select>
-
         </div>
       </div>
 
@@ -113,15 +112,15 @@
         <div class="space-y-1">
           <label for="email" class="block text-sm font-medium text-gray-700">E-mail de acesso</label>
           <input id="email" type="email" placeholder="Ex: voce@email.com"
-            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800" />
         </div>
 
         <div class="space-y-1">
           <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
           <div class="relative">
             <input id="password" type="password" placeholder="••••••••"
-              class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary pr-10" />
-            <button type="button" id="toggle-password" class="absolute inset-y-0 right-2 flex items-center text-sm text-gray-500" aria-label="Mostrar senha">👁</button>
+              class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary pr-10 text-gray-800" />
+            <button type="button" id="toggle-password" class="absolute inset-y-0 right-2 flex items-center text-sm text-gray-500">👁</button>
           </div>
         </div>
 
@@ -136,7 +135,7 @@
         <div id="shared-users-container" class="space-y-1 hidden">
           <label for="sharedUsers" class="block text-sm font-medium text-gray-700">Quem mais usa essa conta?</label>
           <input id="sharedUsers" type="text" placeholder="Ex: João, Maria, Lucas"
-            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-800" />
         </div>
       </div>
 
@@ -161,35 +160,32 @@
     <!-- LISTA DE ASSINATURAS -->
     <div>
       <h2 class="text-xl font-semibold text-dark mb-3">Minhas Assinaturas</h2>
-      <div id="subscription-list" class="space-y-3">
-        <!-- Cards dinâmicos aqui -->
-      </div>
+      <div id="subscription-list" class="space-y-3"></div>
     </div>
-
   </div>
 
-  <!-- Modal Dados de Acesso -->
-  <div id="access-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
-      <button id="close-modal" class="absolute top-2 right-3 text-gray-600 hover:text-gray-900 text-xl font-bold" aria-label="Fechar modal">&times;</button>
-      <h3 class="text-xl font-semibold mb-4">Dados de Acesso</h3>
+  <!-- MODAL PARA DADOS DE ACESSO -->
+  <div id="access-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-lg text-gray-800">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Dados de Acesso</h3>
+        <button id="close-modal" class="text-gray-500 hover:text-red-600 text-xl">&times;</button>
+      </div>
       <form id="access-form" class="space-y-4">
         <div>
-          <label for="modal-email" class="block font-medium text-gray-700">E-mail</label>
-          <input type="email" id="modal-email" class="w-full border border-gray-300 rounded p-2" required />
+          <label for="modal-email" class="block text-sm font-medium text-gray-800">E-mail de acesso</label>
+          <input type="email" id="modal-email" class="w-full p-3 border rounded-lg text-gray-800" disabled />
         </div>
         <div>
-          <label for="modal-password" class="block font-medium text-gray-700">Senha</label>
+          <label for="modal-password" class="block text-sm font-medium text-gray-800">Senha</label>
           <div class="relative">
-            <input type="password" id="modal-password" class="w-full border border-gray-300 rounded p-2 pr-10" required />
-            <button type="button" id="modal-toggle-password" class="absolute inset-y-0 right-2 flex items-center text-gray-500" aria-label="Mostrar senha">👁</button>
+            <input type="password" id="modal-password" class="w-full p-3 border rounded-lg pr-10 text-gray-800" disabled />
+            <button type="button" id="modal-toggle-password" class="absolute inset-y-0 right-2 flex items-center text-sm text-gray-600">👁</button>
           </div>
         </div>
-        <div class="flex justify-end gap-4">
-          <button type="button" id="modal-cancel" class="px-4 py-2 bg-red-300 text-red-800 rounded hover:bg-red-400 transition">
-  Cancelar</button>
-</button>
-          <button type="submit" class="px-4 py-2 bg-primary text-white rounded hover:bg-emerald-600">Salvar</button>
+        <div class="flex justify-end gap-2">
+          <button type="button" id="modal-cancel" class="px-4 py-2 bg-red-300 text-red-800 rounded hover:bg-red-400">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded hover:bg-emerald-600 hidden">Salvar</button>
         </div>
       </form>
     </div>
@@ -197,7 +193,6 @@
 
   <script src="app.js"></script>
   <script>
-    // Registrar o service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js')
         .then(() => console.log('Service Worker registrado com sucesso.'))
@@ -205,5 +200,7 @@
     }
   </script>
 </body>
+
 </html>
+
 
