@@ -181,6 +181,11 @@
     </div>
   </div>
 
+  <!-- BOTÃO INSTALAR APP -->
+  <button id="install-button" class="hidden fixed bottom-6 right-6 bg-primary text-white px-4 py-2 rounded shadow-lg z-50">
+    Instalar App
+  </button>
+
   <!-- MODAL PARA DADOS DE ACESSO -->
   <div id="access-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-lg text-gray-800">
@@ -209,12 +214,35 @@
   </div>
 
   <script src="app.js"></script>
-  <script>
+   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js')
         .then(() => console.log('Service Worker registrado com sucesso.'))
         .catch(error => console.log('Erro ao registrar o Service Worker:', error));
     }
+
+    // Lógica para botão de instalação
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-button');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.remove('hidden');
+    });
+
+    installBtn.addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Usuário aceitou instalar o app.');
+          }
+          deferredPrompt = null;
+          installBtn.classList.add('hidden');
+        });
+      }
+    });
   </script>
 </body>
 
