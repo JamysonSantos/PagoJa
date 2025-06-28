@@ -120,7 +120,7 @@
           <div class="relative">
             <input id="password" type="password" placeholder="••••••••"
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary pr-10" />
-            <button type="button" id="toggle-password" class="absolute inset-y-0 right-2 flex items-center text-sm text-gray-500">👁</button>
+            <button type="button" id="toggle-password" class="absolute inset-y-0 right-2 flex items-center text-sm text-gray-500" aria-label="Mostrar senha">👁</button>
           </div>
         </div>
 
@@ -165,6 +165,31 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Modal Dados de Acesso -->
+  <div id="access-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
+      <button id="close-modal" class="absolute top-2 right-3 text-gray-600 hover:text-gray-900 text-xl font-bold" aria-label="Fechar modal">&times;</button>
+      <h3 class="text-xl font-semibold mb-4">Dados de Acesso</h3>
+      <form id="access-form" class="space-y-4">
+        <div>
+          <label for="modal-email" class="block font-medium text-gray-700">E-mail</label>
+          <input type="email" id="modal-email" class="w-full border border-gray-300 rounded p-2" required />
+        </div>
+        <div>
+          <label for="modal-password" class="block font-medium text-gray-700">Senha</label>
+          <div class="relative">
+            <input type="password" id="modal-password" class="w-full border border-gray-300 rounded p-2 pr-10" required />
+            <button type="button" id="modal-toggle-password" class="absolute inset-y-0 right-2 flex items-center text-gray-500" aria-label="Mostrar senha">👁</button>
+          </div>
+        </div>
+        <div class="flex justify-end gap-4">
+          <button type="button" id="modal-cancel" class="px-4 py-2 border rounded border-gray-300 hover:bg-gray-100">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-primary text-white rounded hover:bg-emerald-600">Salvar</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="app.js"></script>
