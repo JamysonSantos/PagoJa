@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PagoJá - Controle de Assinaturas</title>
+  <title>Seificontas - Organize, Pague, Relaxe</title>
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -40,8 +40,8 @@
 
   <div class="w-full max-w-2xl bg-white shadow-xl rounded-xl p-6 space-y-6 text-gray-800">
 
-    <h1 class="text-3xl font-bold text-center text-dark">PagoJá</h1>
-    <p class="text-center text-gray-500">Seu controle de assinaturas e contas em um só lugar.</p>
+    <h1 class="text-3xl font-bold text-center text-dark">Seificontas</h1>
+    <p class="text-center text-gray-500">organize, pague, relaxe</p>
 
     <!-- FORMULÁRIO -->
     <form id="subscription-form" class="space-y-4">
@@ -102,6 +102,43 @@
         </div>
       </div>
 
+      <!-- CAMPOS CONDICIONAIS PARA STREAMING -->
+      <div id="streaming-fields" class="space-y-4 hidden">
+        <div class="border-t border-gray-300 pt-4">
+          <h3 class="text-sm font-semibold text-gray-700">Dados de Acesso</h3>
+          <p class="text-xs text-gray-500">Esses dados são armazenados apenas no seu dispositivo. Nenhuma informação é enviada para a internet.</p>
+        </div>
+
+        <div class="space-y-1">
+          <label for="email" class="block text-sm font-medium text-gray-700">E-mail de acesso</label>
+          <input id="email" type="email" placeholder="Ex: voce@email.com"
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+        </div>
+
+        <div class="space-y-1">
+          <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+          <div class="relative">
+            <input id="password" type="password" placeholder="••••••••"
+              class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary pr-10" />
+            <button type="button" id="toggle-password" class="absolute inset-y-0 right-2 flex items-center text-sm text-gray-500">👁</button>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <span class="block text-sm font-medium text-gray-700">Uso da conta</span>
+          <div class="flex items-center gap-4">
+            <label><input type="radio" name="usage" value="pessoal" checked class="mr-1"> Pessoal</label>
+            <label><input type="radio" name="usage" value="compartilhado" class="mr-1"> Compartilhado</label>
+          </div>
+        </div>
+
+        <div id="shared-users-container" class="space-y-1 hidden">
+          <label for="sharedUsers" class="block text-sm font-medium text-gray-700">Quem mais usa essa conta?</label>
+          <input id="sharedUsers" type="text" placeholder="Ex: João, Maria, Lucas"
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+        </div>
+      </div>
+
       <div class="flex flex-col sm:flex-row gap-4 pt-2">
         <button type="submit"
           class="w-full bg-primary hover:bg-emerald-600 text-white font-semibold py-3 rounded-lg transition-all">
@@ -141,3 +178,4 @@
   </script>
 </body>
 </html>
+
