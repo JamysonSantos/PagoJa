@@ -1,12 +1,11 @@
 {
   "name": "Seificontas",
   "short_name": "Seificontas",
-  "description": "Gerencie suas assinaturas de forma simples. Organize, pague e relaxe.",
+  "description": "Gerencie suas assinaturas. Organize, pague e relaxe.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#064E3B",
   "theme_color": "#10B981",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "/logoseifi192.png",
@@ -20,3 +19,4 @@
     }
   ]
 }
+
