@@ -209,50 +209,6 @@
   </div>
 
   <script src="app.js"></script>
- <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(() => console.log('Service Worker registrado com sucesso.'))
-        .catch(error => console.log('Erro ao registrar o Service Worker:', error));
-    }
-
-    let deferredPrompt;
-    const installBtn = document.getElementById('install-button');
-
-    let promptEventFired = false;
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      promptEventFired = true;
-      installBtn.classList.remove('hidden');
-    });
-
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        if (!promptEventFired) {
-          installBtn.classList.remove('hidden');
-          installBtn.textContent = 'Como instalar este app';
-          installBtn.onclick = () => {
-            alert('Para adicionar este app à tela inicial, abra o menu do navegador (⋮) e selecione "Adicionar à tela inicial".');
-          };
-        }
-      }, 2000);
-    });
-
-    installBtn.addEventListener('click', () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('Usuário aceitou instalar o app.');
-          }
-          deferredPrompt = null;
-          installBtn.classList.add('hidden');
-        });
-      }
-    });
-  </script>
 </body>
 
 </html>
