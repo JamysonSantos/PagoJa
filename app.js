@@ -8,39 +8,14 @@ const passwordInput = document.getElementById('password');
 const usageRadios = document.getElementsByName('usage');
 const sharedUsersContainer = document.getElementById('shared-users-container');
 
-const accessModal = document.getElementById('access-modal');
-const closeModalBtn = document.getElementById('close-modal');
-const modalCancelBtn = document.getElementById('modal-cancel');
-const accessForm = document.getElementById('access-form');
-const modalEmail = document.getElementById('modal-email');
-const modalPassword = document.getElementById('modal-password');
-const modalTogglePassword = document.getElementById('modal-toggle-password');
-
-const modalEditBtn = document.createElement('button'); // Botão Editar, será criado dinamicamente
-modalEditBtn.type = 'button';
-modalEditBtn.textContent = 'Editar';
-modalEditBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700';
-
-// Controle do index atual que está sendo editado no modal
-let currentEditingIndex = null;
-let modalIsEditing = false; // Flag para controlar estado do modal
-
-// Função para atualizar visibilidade dos campos streaming no formulário conforme categoria
-function updateStreamingFieldsVisibility() {
+categoryField.addEventListener('change', () => {
   if (categoryField.value === 'Streaming') {
     streamingFields.classList.remove('hidden');
   } else {
     streamingFields.classList.add('hidden');
   }
-}
+});
 
-// Inicializar visibilidade logo no carregamento da página
-updateStreamingFieldsVisibility();
-
-// Atualizar visibilidade ao mudar categoria
-categoryField.addEventListener('change', updateStreamingFieldsVisibility);
-
-// Toggle senha formulário principal
 if (togglePasswordBtn) {
   togglePasswordBtn.addEventListener('click', () => {
     const type = passwordInput.type === 'password' ? 'text' : 'password';
@@ -48,7 +23,6 @@ if (togglePasswordBtn) {
   });
 }
 
-// Mostrar/ocultar campo compartilhado
 usageRadios.forEach(radio => {
   radio.addEventListener('change', () => {
     if (radio.value === 'compartilhado' && radio.checked) {
@@ -59,7 +33,6 @@ usageRadios.forEach(radio => {
   });
 });
 
-// Toast de notificação
 function showToast(message) {
   const toast = document.createElement('div');
   toast.textContent = message;
@@ -125,20 +98,16 @@ function renderList() {
       <div class="flex justify-between items-start flex-wrap gap-2">
         <div>
           <p class="text-lg font-bold text-dark">${item.name}</p>
-          <p class="text-sm text-gray-600">
-            Valor: ${formatCurrency(item.value)} | Próxima cobrança: ${formatDate(item.nextDate)}
-          </p>
-          <p class="text-xs text-gray-500 my-2">${item.frequency} · ${item.paymentMethod} · ${item.category}</p>
-          ${item.category === 'Streaming' && item.usage === 'compartilhado' ? `
-            <p class="text-xs text-gray-500 mb-2">Compartilhado com: ${item.sharedUsers || '-'}</p>
-          ` : ''}
+          <p class="text-sm text-gray-600">Valor: ${formatCurrency(item.value)} | Próxima cobrança: ${formatDate(item.nextDate)}</p>
+          <p class="text-xs text-gray-500">${item.frequency} · ${item.paymentMethod} · ${item.category}</p>
+          ${item.category === 'Streaming' && item.usage === 'compartilhado' ? `<p class="text-xs text-gray-500 mt-1">Compartilhado com: ${item.sharedUsers || '-'}</p>` : ''}
         </div>
-        <div class="flex flex-col gap-2 mt-2">
-          ${item.category === 'Streaming' ? `<button class="btn-access bg-blue-600 text-white px-3 py-1 rounded text-sm" data-index="${index}">Ver dados de acesso</button>` : ''}
+        <div class="flex flex-wrap gap-2 mt-2">
           <button class="px-3 py-1 bg-primary text-white rounded text-sm" onclick="markAsPaid(${index})">Paguei</button>
           <button class="px-3 py-1 bg-yellow-500 text-white rounded text-sm" onclick="markAsPaidAndCancel(${index})">Paguei, mas vou cancelar</button>
           <button class="px-3 py-1 bg-red-500 text-white rounded text-sm" onclick="cancelSubscription(${index})">Cancelei</button>
           <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm" onclick="changeDate(${index})">Alterar data</button>
+          ${item.category === 'Streaming' ? `<button class="px-3 py-1 bg-gray-800 text-white rounded text-sm" onclick="showAccessData(${index})">Ver dados de acesso</button>` : ''}
         </div>
       </div>
     `;
@@ -147,8 +116,6 @@ function renderList() {
   });
   renderTotal(subscriptions);
 }
-
-// Funções para ações nos cards
 
 function markAsPaid(index) {
   const subscriptions = loadFromLocalStorage();
@@ -193,24 +160,19 @@ function removeSubscription(index) {
   renderList();
 }
 
-// Cadastro novo item via formulário
 form.addEventListener('submit', function (e) {
   e.preventDefault();
-  if (!categoryField.value) {
-    alert("Por favor, escolha uma categoria válida.");
-    return;
-  }
   const subscription = {
-    name: document.getElementById('name').value.trim(),
+    name: document.getElementById('name').value,
     value: parseFloat(document.getElementById('value').value),
     nextDate: document.getElementById('nextDate').value,
     frequency: document.getElementById('frequency').value,
     paymentMethod: document.getElementById('paymentMethod').value,
-    category: categoryField.value,
-    email: document.getElementById('email')?.value.trim() || '',
+    category: document.getElementById('category').value,
+    email: document.getElementById('email')?.value || '',
     password: document.getElementById('password')?.value || '',
     usage: document.querySelector('input[name="usage"]:checked')?.value || 'pessoal',
-    sharedUsers: document.getElementById('sharedUsers')?.value.trim() || ''
+    sharedUsers: document.getElementById('sharedUsers')?.value || ''
   };
   const subscriptions = loadFromLocalStorage();
   subscriptions.push(subscription);
@@ -221,148 +183,65 @@ form.addEventListener('submit', function (e) {
   renderList();
 });
 
-// Modal Dados de Acesso
+// ================= NOTIFICAÇÕES ===================
 
-// Variáveis para guardar dados originais no modo visualização
-let modalOriginalEmail = '';
-let modalOriginalPassword = '';
-
-// Delegação para botão "Ver dados de acesso"
-list.addEventListener('click', (e) => {
-  if (e.target.classList.contains('btn-access')) {
-    currentEditingIndex = parseInt(e.target.dataset.index, 10);
-    openAccessModal(currentEditingIndex);
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission !== 'granted') {
+    Notification.requestPermission();
   }
-});
+}
 
-function openAccessModal(index) {
+function showNotification(title, body) {
+  if (Notification.permission === 'granted') {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg) {
+        reg.showNotification(title, {
+          body,
+          icon: '/icons/icon-192.png'
+        });
+      }
+    });
+  }
+}
+
+function checkAndNotify() {
+  const today = new Date();
   const subscriptions = loadFromLocalStorage();
-  const item = subscriptions[index];
-  if (!item) return;
+  const notifiedKey = `notified-${today.toISOString().split('T')[0]}`;
+  const alreadyNotified = localStorage.getItem(notifiedKey);
+  if (alreadyNotified) return;
 
-  modalOriginalEmail = item.email || '';
-  modalOriginalPassword = item.password || '';
+  subscriptions.forEach(sub => {
+    if (sub.paymentMethod !== 'Cartão') return;
 
-  setModalFields(modalOriginalEmail, modalOriginalPassword);
-  setModalViewMode();
+    const nextDate = new Date(sub.nextDate);
+    const diff = Math.floor((nextDate - today) / (1000 * 60 * 60 * 24));
 
-  accessModal.classList.remove('hidden');
+    if (diff === 3) {
+      showNotification(
+        `Seificontas · ${sub.name}`,
+        `Opa, em 3 dias a ${sub.name} cobrará a mensalidade desse mês. Só te avisando mesmo! 😉`
+      );
+    } else if (diff === 0) {
+      showNotification(
+        `Seificontas · ${sub.name}`,
+        `A ${sub.name} cobra hoje, hein? Só pra ficar atento! 💳`
+      );
+    } else if (diff === -1 || diff === -2) {
+      showNotification(
+        `Seificontas · ${sub.name}`,
+        `E aí, a ${sub.name} cobrou? Se sim, lembra de atualizar aqui no Seifi 😎`
+      );
+    }
+  });
+
+  localStorage.setItem(notifiedKey, 'true');
 }
 
-// Configura campos do modal com valores dados e mascara
-function setModalFields(email, password) {
-  modalEmail.value = email;
-  modalPassword.value = password;
-  modalPassword.type = 'password';
-  modalTogglePassword.textContent = '👁';
-}
-
-// Ajusta modal para modo visualização (inputs desabilitados)
-// Ajusta modal para modo visualização (inputs desabilitados)
-function setModalViewMode() {
-  modalIsEditing = false;
-  modalEmail.disabled = true;
-  modalPassword.disabled = true;
-  modalTogglePassword.style.visibility = 'visible';
-  modalTogglePassword.textContent = '👁';
-
-  // Remover botão salvar e cancelar, adicionar editar
-  if (!accessForm.contains(modalEditBtn)) {
-    accessForm.appendChild(modalEditBtn);
-  }
-  modalCancelBtn.style.display = 'none';
-  accessForm.querySelector('button[type="submit"]').style.display = 'none';
-
-  modalEditBtn.style.display = 'inline-block';
-}
-
-// Ajusta modal para modo edição (inputs habilitados)
-function setModalEditMode() {
-  modalIsEditing = true;
-
-  modalEmail.disabled = false;
-  modalPassword.disabled = false;
-  
-  // Se estava com atributo readonly, remove (caso tenha usado)
-  modalEmail.removeAttribute('readonly');
-  modalPassword.removeAttribute('readonly');
-
-  modalTogglePassword.style.visibility = 'visible';
-
-  modalEditBtn.style.display = 'none';
-  modalCancelBtn.style.display = 'inline-block';
-  accessForm.querySelector('button[type="submit"]').style.display = 'inline-block';
-}
-
-// Ajusta modal para modo edição (inputs habilitados)
-function setModalEditMode() {
-  modalIsEditing = true;
-  modalEmail.disabled = false;
-  modalPassword.disabled = false;
-  modalTogglePassword.style.visibility = 'visible';
-
-  modalEditBtn.style.display = 'none';
-  modalCancelBtn.style.display = 'inline-block';
-  accessForm.querySelector('button[type="submit"]').style.display = 'inline-block';
-}
-
-// Alternar visibilidade da senha no modal
-modalTogglePassword.addEventListener('click', () => {
-  if (modalPassword.type === 'password') {
-    modalPassword.type = 'text';
-    modalTogglePassword.textContent = '🙈';
-  } else {
-    modalPassword.type = 'password';
-    modalTogglePassword.textContent = '👁';
-  }
-});
-
-// Fechar modal
-closeModalBtn.addEventListener('click', () => {
-  closeAccessModal();
-});
-
-modalCancelBtn.addEventListener('click', () => {
-  // Reverter para dados originais e modo visualização
-  setModalFields(modalOriginalEmail, modalOriginalPassword);
-  setModalViewMode();
-});
-
-// Botão editar do modal
-modalEditBtn.addEventListener('click', () => {
-  setModalEditMode();
-});
-
-// Salvar alterações do modal
-accessForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  if (currentEditingIndex === null) return;
-
-  const subscriptions = loadFromLocalStorage();
-  const item = subscriptions[currentEditingIndex];
-
-  item.email = modalEmail.value.trim();
-  item.password = modalPassword.value;
-
-  saveToLocalStorage(subscriptions);
-  renderList();
-
-  // Atualiza dados originais para o modo visualização
-  modalOriginalEmail = item.email;
-  modalOriginalPassword = item.password;
-
-  setModalViewMode();
-  showToast('Dados de acesso atualizados!');
-});
-
-// Fechar modal (função)
-function closeAccessModal() {
-  accessModal.classList.add('hidden');
-  currentEditingIndex = null;
-  setModalViewMode();
-}
-
-// Inicializar lista ao carregar
+// Inicialização
+requestNotificationPermission();
 renderList();
+checkAndNotify();
+
 
 
