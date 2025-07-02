@@ -4,14 +4,12 @@ const urlsToCache = [
   '/index.html',
   '/app.js',
   '/manifest.json',
-  '/icons/logoseifi192.png',
-  '/logseifi512.png'
+  '/logoseifi192.png',
+  '/logoseifi512.png'
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
 });
 
 self.addEventListener('fetch', event => {
@@ -28,20 +26,16 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Notificação - ao clicar
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client) {
-          return client.focus();
-        }
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientsArr => {
+      for (const client of clientsArr) {
+        if (client.url === '/' && 'focus' in client) return client.focus();
       }
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
+      if (clients.openWindow) return clients.openWindow('/');
     })
   );
 });
+
 
