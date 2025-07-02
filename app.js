@@ -1,3 +1,77 @@
+// Importação dos módulos Firebase (via ES Modules)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging.js";
+
+// Configuração Firebase - substitua pelas suas credenciais do Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCRhjUGAAwWDrxA3AAv5EJuehulBk5hn9E",
+  authDomain: "seificontas.firebaseapp.com",
+  projectId: "seificontas",
+  storageBucket: "seificontas.firebasestorage.app",
+  messagingSenderId: "454487656313",
+  appId: "1:454487656313:web:bbc2fe6d220068bdc7d1a8"
+};
+
+// Inicializa o Firebase
+const appFirebase = initializeApp(firebaseConfig);
+
+// Inicializa o Messaging
+const messaging = getMessaging(appFirebase);
+
+// Registra o service worker do Firebase Messaging
+navigator.serviceWorker.register('/firebase-messaging-sw.js')
+  .then((registration) => {
+    console.log('Service Worker registrado com sucesso:', registration);
+
+    // Solicita permissão para notificações e obtém token
+    requestNotificationPermission(registration);
+  })
+  .catch(err => {
+    console.error('Erro ao registrar o Service Worker:', err);
+  });
+
+// Função para solicitar permissão e obter token
+async function requestNotificationPermission(registration) {
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    console.log('Permissão para notificações concedida.');
+
+    try {
+      const token = await getToken(messaging, {
+         vapidKey: 'BCQlBNQ5hD-PhZaO6l5VZB3KRTYgUWjt0uK74nRkUwIbkd0IMcxuJnx8ukqpya9dCkZclhNRhX3s2HN1edfY8_o',
+         serviceWorkerRegistration: registration
+        });
+      console.log('Token FCM obtido:', token);
+
+      // TODO: envie esse token para seu backend para armazenar e usar nas notificações push
+      // exemplo: await sendTokenToBackend(token);
+    } catch (error) {
+      console.error('Erro ao obter token FCM:', error);
+    }
+  } else {
+    console.log('Permissão para notificações negada.');
+  }
+}
+
+// Exemplo básico de função para enviar token ao backend (implemente conforme sua API)
+async function sendTokenToBackend(token) {
+  try {
+    await fetch('/api/save-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+  } catch (error) {
+    console.error('Erro ao enviar token para backend:', error);
+  }
+}
+
+// Escuta mensagens recebidas com o app aberto (foreground)
+onMessage(messaging, (payload) => {
+  console.log('Mensagem recebida em foreground:', payload);
+  // Aqui você pode mostrar um toast, alert ou atualizar a interface
+});
+
 // Referências aos elementos do DOM
 const form = document.getElementById('subscription-form');
 const list = document.getElementById('subscription-list');
