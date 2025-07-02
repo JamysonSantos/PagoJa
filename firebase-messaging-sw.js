@@ -16,7 +16,7 @@ messaging.onBackgroundMessage(function(payload) {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/icons/icon-192.png'
+    icon: '/logoseifi192.png'
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
