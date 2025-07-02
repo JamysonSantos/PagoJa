@@ -1,3 +1,81 @@
+// Importação dos módulos Firebase (via ES Modules)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging.js";
+
+// Configuração Firebase - substitua pelas suas credenciais do Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCRhjUGAAwWDrxA3AAv5EJuehulBk5hn9E",
+  authDomain: "seificontas.firebaseapp.com",
+  projectId: "seificontas",
+  storageBucket: "seificontas.firebasestorage.app",
+  messagingSenderId: "454487656313",
+  appId: "1:454487656313:web:bbc2fe6d220068bdc7d1a8"
+};
+
+// Inicializa o Firebase
+const appFirebase = initializeApp(firebaseConfig);
+
+// Inicializa o Messaging
+const messaging = getMessaging(appFirebase);
+
+// Registra o service worker do Firebase Messaging
+navigator.serviceWorker.register('/firebase-messaging-sw.js')
+  .then((registration) => {
+    console.log('Service Worker registrado com sucesso:', registration);
+
+    // Solicita permissão para notificações e obtém token
+    requestNotificationPermission(registration);
+  })
+  .catch(err => {
+    console.error('Erro ao registrar o Service Worker:', err);
+  });
+
+// Função para solicitar permissão e obter token
+async function requestNotificationPermission(registration) {
+  const permission = await Notification.requestPermission();
+  if (permission === 'granted') {
+    console.log('Permissão para notificações concedida.');
+
+    try {
+      const token = await getToken(messaging, {
+         vapidKey: 'BCQlBNQ5hD-PhZaO6l5VZB3KRTYgUWjt0uK74nRkUwIbkd0IMcxuJnx8ukqpya9dCkZclhNRhX3s2HN1edfY8_o',
+         serviceWorkerRegistration: registration
+        });
+      console.log('Token FCM obtido:', token);
+
+      // TODO: envie esse token para seu backend para armazenar e usar nas notificações push
+      // exemplo: await sendTokenToBackend(token);
+    } catch (error) {
+      console.error('Erro ao obter token FCM:', error);
+    }
+  } else {
+    console.log('Permissão para notificações negada.');
+  }
+}
+
+// Exemplo básico de função para enviar token ao backend (implemente conforme sua API)
+async function sendTokenToBackend(token) {
+  try {
+    await fetch('/api/save-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+  } catch (error) {
+    console.error('Erro ao enviar token para backend:', error);
+  }
+}
+
+// Escuta mensagens recebidas com o app aberto (foreground)
+onMessage(messaging, (payload) => {
+  console.log('Mensagem recebida em foreground:', payload);
+  // Aqui você pode mostrar um toast, alert ou atualizar a interface
+});
+
+// ------------------------------------------------
+// Seu código existente para o app Seificontas
+// ------------------------------------------------
+
 const form = document.getElementById('subscription-form');
 const list = document.getElementById('subscription-list');
 const totalCost = document.getElementById('total-cost');
@@ -8,6 +86,7 @@ const passwordInput = document.getElementById('password');
 const usageRadios = document.getElementsByName('usage');
 const sharedUsersContainer = document.getElementById('shared-users-container');
 
+// Mostrar/ocultar campos adicionais para streaming
 categoryField.addEventListener('change', () => {
   if (categoryField.value === 'Streaming') {
     streamingFields.classList.remove('hidden');
@@ -16,6 +95,7 @@ categoryField.addEventListener('change', () => {
   }
 });
 
+// Mostrar/ocultar senha
 if (togglePasswordBtn) {
   togglePasswordBtn.addEventListener('click', () => {
     const type = passwordInput.type === 'password' ? 'text' : 'password';
@@ -23,6 +103,7 @@ if (togglePasswordBtn) {
   });
 }
 
+// Mostrar/ocultar campo de compartilhamento
 usageRadios.forEach(radio => {
   radio.addEventListener('change', () => {
     if (radio.value === 'compartilhado' && radio.checked) {
@@ -33,6 +114,7 @@ usageRadios.forEach(radio => {
   });
 });
 
+// Toast de notificação
 function showToast(message) {
   const toast = document.createElement('div');
   toast.textContent = message;
@@ -100,14 +182,18 @@ function renderList() {
           <p class="text-lg font-bold text-dark">${item.name}</p>
           <p class="text-sm text-gray-600">Valor: ${formatCurrency(item.value)} | Próxima cobrança: ${formatDate(item.nextDate)}</p>
           <p class="text-xs text-gray-500">${item.frequency} · ${item.paymentMethod} · ${item.category}</p>
-          ${item.category === 'Streaming' && item.usage === 'compartilhado' ? `<p class="text-xs text-gray-500 mt-1">Compartilhado com: ${item.sharedUsers || '-'}</p>` : ''}
+          ${item.category === 'Streaming' && item.usage === 'compartilhado' ? `
+            <p class="text-xs text-gray-500 mt-1">Compartilhado com: ${item.sharedUsers || '-'}</p>
+            <button onclick="openAccessDataPopup(${index})" class="mt-2 px-3 py-1 bg-primary text-white rounded text-sm">Ver dados de acesso</button>
+          ` : item.category === 'Streaming' ? `
+            <button onclick="openAccessDataPopup(${index})" class="mt-2 px-3 py-1 bg-primary text-white rounded text-sm">Ver dados de acesso</button>
+          ` : ''}
         </div>
         <div class="flex flex-wrap gap-2 mt-2">
           <button class="px-3 py-1 bg-primary text-white rounded text-sm" onclick="markAsPaid(${index})">Paguei</button>
           <button class="px-3 py-1 bg-yellow-500 text-white rounded text-sm" onclick="markAsPaidAndCancel(${index})">Paguei, mas vou cancelar</button>
           <button class="px-3 py-1 bg-red-500 text-white rounded text-sm" onclick="cancelSubscription(${index})">Cancelei</button>
           <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm" onclick="changeDate(${index})">Alterar data</button>
-          ${item.category === 'Streaming' ? `<button class="px-3 py-1 bg-gray-800 text-white rounded text-sm" onclick="showAccessData(${index})">Ver dados de acesso</button>` : ''}
         </div>
       </div>
     `;
@@ -116,6 +202,8 @@ function renderList() {
   });
   renderTotal(subscriptions);
 }
+
+// --- Funções já implementadas (markAsPaid, markAsPaidAndCancel, cancelSubscription, changeDate, removeSubscription) ---
 
 function markAsPaid(index) {
   const subscriptions = loadFromLocalStorage();
@@ -160,6 +248,135 @@ function removeSubscription(index) {
   renderList();
 }
 
+// --- Popup para dados de acesso (email e senha) ---
+
+function openAccessDataPopup(index) {
+  const subscriptions = loadFromLocalStorage();
+  const sub = subscriptions[index];
+  if (!sub) return;
+
+  // Cria popup (remova o existente, se houver)
+  let popup = document.getElementById('access-data-popup');
+  if (popup) popup.remove();
+
+  popup = document.createElement('div');
+  popup.id = 'access-data-popup';
+  popup.className = `
+    fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60
+  `;
+  popup.innerHTML = `
+    <div class="bg-white p-6 rounded-lg max-w-sm w-full relative text-gray-900 shadow-lg">
+      <button id="close-popup" class="absolute top-2 right-2 text-gray-700 text-xl font-bold hover:text-red-600">&times;</button>
+      <h3 class="text-xl font-semibold mb-4">Dados de Acesso</h3>
+
+      <div id="view-mode" class="">
+        <p><strong>E-mail:</strong> ${sub.email || '-'}</p>
+        <p><strong>Senha:</strong> <span id="password-display">${'*'.repeat(sub.password?.length || 8)}</span> 
+          <button id="toggle-password-popup" class="ml-2 text-blue-600 font-semibold hover:underline cursor-pointer">👁</button>
+        </p>
+        <button id="edit-btn" class="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-emerald-600">Editar</button>
+      </div>
+
+      <div id="edit-mode" class="hidden">
+        <label class="block mb-2 font-semibold" for="email-edit">E-mail</label>
+        <input id="email-edit" type="email" class="w-full p-2 border rounded mb-4" value="${sub.email || ''}" />
+        <label class="block mb-2 font-semibold" for="password-edit">Senha</label>
+        <input id="password-edit" type="password" class="w-full p-2 border rounded" value="${sub.password || ''}" />
+        <div class="mt-4 flex justify-end gap-2">
+          <button id="cancel-edit" class="px-4 py-2 rounded border border-red-400 text-red-600 hover:bg-red-100">Cancelar</button>
+          <button id="save-edit" class="px-4 py-2 bg-primary text-white rounded hover:bg-emerald-600">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  // Event listeners
+
+  // Fechar popup
+  document.getElementById('close-popup').onclick = () => {
+    popup.remove();
+  };
+
+  // Alternar mostrar/ocultar senha no view mode
+  let passwordVisible = false;
+  document.getElementById('toggle-password-popup').onclick = () => {
+    const passSpan = document.getElementById('password-display');
+    if (!passwordVisible) {
+      passSpan.textContent = sub.password || '';
+      passwordVisible = true;
+    } else {
+      passSpan.textContent = '*'.repeat(sub.password?.length || 8);
+      passwordVisible = false;
+    }
+  };
+
+  // Botão editar
+  document.getElementById('edit-btn').onclick = () => {
+    document.getElementById('view-mode').classList.add('hidden');
+    document.getElementById('edit-mode').classList.remove('hidden');
+  };
+
+  // Cancelar edição
+  document.getElementById('cancel-edit').onclick = () => {
+    document.getElementById('edit-mode').classList.add('hidden');
+    document.getElementById('view-mode').classList.remove('hidden');
+  };
+
+  // Salvar edição
+  document.getElementById('save-edit').onclick = () => {
+    const newEmail = document.getElementById('email-edit').value.trim();
+    const newPassword = document.getElementById('password-edit').value;
+
+    if (!newEmail || !newPassword) {
+      alert('E-mail e senha são obrigatórios.');
+      return;
+    }
+
+    // Atualiza os dados no localStorage
+    sub.email = newEmail;
+    sub.password = newPassword;
+
+    const subscriptions = loadFromLocalStorage();
+    subscriptions[index] = sub;
+    saveToLocalStorage(subscriptions);
+
+    // Atualiza a UI do popup
+    document.getElementById('view-mode').innerHTML = `
+      <p><strong>E-mail:</strong> ${sub.email}</p>
+      <p><strong>Senha:</strong> <span id="password-display">${'*'.repeat(sub.password.length)}</span> 
+        <button id="toggle-password-popup" class="ml-2 text-blue-600 font-semibold hover:underline cursor-pointer">👁</button>
+      </p>
+      <button id="edit-btn" class="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-emerald-600">Editar</button>
+    `;
+
+    // Reatribuir eventos do view mode
+    let passwordVisible = false;
+    document.getElementById('toggle-password-popup').onclick = () => {
+      const passSpan = document.getElementById('password-display');
+      if (!passwordVisible) {
+        passSpan.textContent = sub.password;
+        passwordVisible = true;
+      } else {
+        passSpan.textContent = '*'.repeat(sub.password.length);
+        passwordVisible = false;
+      }
+    };
+    document.getElementById('edit-btn').onclick = () => {
+      document.getElementById('view-mode').classList.add('hidden');
+      document.getElementById('edit-mode').classList.remove('hidden');
+    };
+
+    // Voltar ao modo visualização
+    document.getElementById('edit-mode').classList.add('hidden');
+    document.getElementById('view-mode').classList.remove('hidden');
+
+    // Atualizar lista principal
+    renderList();
+  };
+}
+
 form.addEventListener('submit', function (e) {
   e.preventDefault();
   const subscription = {
@@ -183,65 +400,8 @@ form.addEventListener('submit', function (e) {
   renderList();
 });
 
-// ================= NOTIFICAÇÕES ===================
-
-function requestNotificationPermission() {
-  if ('Notification' in window && Notification.permission !== 'granted') {
-    Notification.requestPermission();
-  }
-}
-
-function showNotification(title, body) {
-  if (Notification.permission === 'granted') {
-    navigator.serviceWorker.getRegistration().then(reg => {
-      if (reg) {
-        reg.showNotification(title, {
-          body,
-          icon: '/icons/icon-192.png'
-        });
-      }
-    });
-  }
-}
-
-function checkAndNotify() {
-  const today = new Date();
-  const subscriptions = loadFromLocalStorage();
-  const notifiedKey = `notified-${today.toISOString().split('T')[0]}`;
-  const alreadyNotified = localStorage.getItem(notifiedKey);
-  if (alreadyNotified) return;
-
-  subscriptions.forEach(sub => {
-    if (sub.paymentMethod !== 'Cartão') return;
-
-    const nextDate = new Date(sub.nextDate);
-    const diff = Math.floor((nextDate - today) / (1000 * 60 * 60 * 24));
-
-    if (diff === 3) {
-      showNotification(
-        `Seificontas · ${sub.name}`,
-        `Opa, em 3 dias a ${sub.name} cobrará a mensalidade desse mês. Só te avisando mesmo! 😉`
-      );
-    } else if (diff === 0) {
-      showNotification(
-        `Seificontas · ${sub.name}`,
-        `A ${sub.name} cobra hoje, hein? Só pra ficar atento! 💳`
-      );
-    } else if (diff === -1 || diff === -2) {
-      showNotification(
-        `Seificontas · ${sub.name}`,
-        `E aí, a ${sub.name} cobrou? Se sim, lembra de atualizar aqui no Seifi 😎`
-      );
-    }
-  });
-
-  localStorage.setItem(notifiedKey, 'true');
-}
-
-// Inicialização
-requestNotificationPermission();
+// Inicializa a lista ao carregar
 renderList();
-checkAndNotify();
 
 
 
